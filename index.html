@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Entrenamiento</title>
+    <link rel="manifest" href="manifest-entreno.json">
+    <style>
+        :root {
+            --bg-color: #f0fdf4;
+            --card-bg: #ffffff;
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --text: #1e293b;
+            --gray: #64748b;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 380px;
+        }
+        h1 { font-size: 1.5rem; text-align: center; margin-bottom: 5px; }
+        .subtitle { font-size: 0.85rem; text-align: center; color: var(--gray); margin-bottom: 20px; }
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+        }
+        .day-title { font-weight: bold; font-size: 1.1rem; color: var(--primary-dark); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .exercise-list { font-size: 0.9rem; color: var(--gray); margin-bottom: 15px; line-height: 1.4; }
+        .exercise-list ul { margin: 5px 0 0 20px; padding: 0; }
+        .btn-day {
+            background-color: #e2e8f0;
+            color: var(--text);
+            border: none;
+            padding: 10px 15px;
+            font-size: 0.95rem;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-day.completed {
+            background-color: var(--primary);
+            color: white;
+        }
+        .progress-box { text-align: center; margin-top: 10px; font-size: 0.9rem; color: var(--gray); }
+        .btn-reset {
+            background: none;
+            border: none;
+            color: var(--gray);
+            margin: 15px auto;
+            display: block;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Rutina de Piernas</h1>
+        <div class="subtitle">Martes, Jueves y Sábados</div>
+
+        <div class="card" id="card-martes">
+            <div class="day-title">Martes <span id="status-martes">⏳</span></div>
+            <div class="exercise-list">
+                <ul>
+                    <li>Sentadillas: 3x10-12 (90s desc)</li>
+                    <li>Puentes de glúteo: 3x12-15 (60s desc)</li>
+                    <li>Estocadas: 3x8-10 por pierna (90s desc)</li>
+                </ul>
+            </div>
+            <button class="btn-day" id="btn-martes" onclick="toggleDia('martes')">Marcar completado</button>
+        </div>
+
+        <div class="card" id="card-jueves">
+            <div class="day-title">Jueves <span id="status-jueves">⏳</span></div>
+            <div class="exercise-list">
+                <ul>
+                    <li>Sentadillas: 3x10-12 (90s desc)</li>
+                    <li>Puentes de glúteo: 3x12-15 (60s desc)</li>
+                    <li>Estocadas: 3x8-10 por pierna (90s desc)</li>
+                </ul>
+            </div>
+            <button class="btn-day" id="btn-jueves" onclick="toggleDia('jueves')">Marcar completado</button>
+        </div>
+
+        <div class="card" id="card-sabado">
+            <div class="day-title">Sábado <span id="status-sabado">⏳</span></div>
+            <div class="exercise-list">
+                <ul>
+                    <li>Sentadillas: 3x10-12 (90s desc)</li>
+                    <li>Puentes de glúteo: 3x12-15 (60s desc)</li>
+                    <li>Estocadas: 3x8-10 por pierna (90s desc)</li>
+                </ul>
+            </div>
+            <button class="btn-day" id="btn-sabado" onclick="toggleDia('sabado')">Marcar completado</button>
+        </div>
+
+        <div class="progress-box" id="texto-progreso">Completados: 0 / 3 esta semana</div>
+        <button class="btn-reset" onclick="reiniciarSemana()">Reiniciar semana</button>
+    </div>
+
+    <script>
+        let estado = JSON.parse(localStorage.getItem('semanaEntreno')) || { martes: false, jueves: false, sabado: false };
+
+        function actualizarUI() {
+            let total = 0;
+            for (let dia in estado) {
+                const btn = document.getElementById(`btn-${dia}`);
+                const status = document.getElementById(`status-${dia}`);
+                if (estado[dia]) {
+                    btn.classList.add('completed');
+                    btn.textContent = '¡Entrenamiento hecho! 💪';
+                    status.textContent = '✅';
+                    total++;
+                } else {
+                    btn.classList.remove('completed');
+                    btn.textContent = 'Marcar completado';
+                    status.textContent = '⏳';
+                }
+            }
+            document.getElementById('texto-progreso').textContent = `Completados: ${total} / 3 esta semana`;
+            localStorage.setItem('semanaEntreno', JSON.stringify(estado));
+        }
+
+        function toggleDia(dia) {
+            estado[dia] = !estado[dia];
+            actualizarUI();
+        }
+
+        function reiniciarSemana() {
+            if(confirm('¿Querés limpiar el registro de la semana?')) {
+                estado = { martes: false, jueves: false, sabado: false };
+                actualizarUI();
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw-entreno.js').catch(err => console.log(err));
+        }
+
+        actualizarUI();
+    </script>
+</body>
+</html>
