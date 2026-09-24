@@ -72,11 +72,11 @@
     </style>
 </head>
 <body>
-
+    
     <div class="container">
         <h1>Rutina de Piernas</h1>
         <div class="subtitle">Martes, Jueves y Sábados</div>
-
+        
         <div class="card" id="card-martes">
             <div class="day-title">Martes <span id="status-martes">⏳</span></div>
             <div class="exercise-list">
@@ -88,7 +88,7 @@
             </div>
             <button class="btn-day" id="btn-martes" onclick="toggleDia('martes')">Marcar completado</button>
         </div>
-
+        
         <div class="card" id="card-jueves">
             <div class="day-title">Jueves <span id="status-jueves">⏳</span></div>
             <div class="exercise-list">
@@ -100,7 +100,7 @@
             </div>
             <button class="btn-day" id="btn-jueves" onclick="toggleDia('jueves')">Marcar completado</button>
         </div>
-
+        
         <div class="card" id="card-sabado">
             <div class="day-title">Sábado <span id="status-sabado">⏳</span></div>
             <div class="exercise-list">
@@ -112,14 +112,14 @@
             </div>
             <button class="btn-day" id="btn-sabado" onclick="toggleDia('sabado')">Marcar completado</button>
         </div>
-
+        
         <div class="progress-box" id="texto-progreso">Completados: 0 / 3 esta semana</div>
         <button class="btn-reset" onclick="reiniciarSemana()">Reiniciar semana</button>
     </div>
-
+    
     <script>
         let estado = JSON.parse(localStorage.getItem('semanaEntreno')) || { martes: false, jueves: false, sabado: false };
-
+        
         function actualizarUI() {
             let total = 0;
             for (let dia in estado) {
@@ -130,6 +130,13 @@
                     btn.textContent = '¡Entrenamiento hecho! 💪';
                     status.textContent = '✅';
                     total++;
+                    
+                    // Crear y reproducir el sonido de victoria al instante
+                    const victorySound = new Audio('audio/Stage Clear.mp3');
+                    victorySound.volume = 0.5; // Ajusta el volumen para que no sature
+                    victorySound.play().catch(error => {
+                        console.log("El navegador bloqueó el audio temporalmente hasta que interactúes con la app:", error);
+                    });
                 } else {
                     btn.classList.remove('completed');
                     btn.textContent = 'Marcar completado';
@@ -139,23 +146,23 @@
             document.getElementById('texto-progreso').textContent = `Completados: ${total} / 3 esta semana`;
             localStorage.setItem('semanaEntreno', JSON.stringify(estado));
         }
-
+        
         function toggleDia(dia) {
             estado[dia] = !estado[dia];
             actualizarUI();
         }
-
+        
         function reiniciarSemana() {
             if(confirm('¿Querés limpiar el registro de la semana?')) {
                 estado = { martes: false, jueves: false, sabado: false };
                 actualizarUI();
             }
         }
-
+        
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw-entreno.js').catch(err => console.log(err));
         }
-
+        
         actualizarUI();
     </script>
 </body>
