@@ -70,6 +70,7 @@
             font-size: 0.85rem;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
 </head>
 <body>
     
@@ -120,6 +121,10 @@
     <script>
         let estado = JSON.parse(localStorage.getItem('semanaEntreno')) || { martes: false, jueves: false, sabado: false };
         
+        // 1. Creamos una única instancia de audio global fuera de las funciones
+        const victorySound = new Audio('audio/Stage Clear.mp3');
+        victorySound.volume = 0.5;
+
         function actualizarUI() {
             let total = 0;
             for (let dia in estado) {
@@ -130,13 +135,6 @@
                     btn.textContent = '¡Entrenamiento hecho! 💪';
                     status.textContent = '✅';
                     total++;
-                    
-                    // Crear y reproducir el sonido de victoria al instante
-                    const victorySound = new Audio('audio/Stage Clear.mp3');
-                    victorySound.volume = 0.5; // Ajusta el volumen para que no sature
-                    victorySound.play().catch(error => {
-                        console.log("El navegador bloqueó el audio temporalmente hasta que interactúes con la app:", error);
-                    });
                 } else {
                     btn.classList.remove('completed');
                     btn.textContent = 'Marcar completado';
@@ -149,6 +147,28 @@
         
         function toggleDia(dia) {
             estado[dia] = !estado[dia];
+            
+            // El sonido y el confeti SOLO ocurren si el día se cambió a TRUE (completado)
+            if (estado[dia]) {
+                // 1. Lanzar el efecto de confeti visual 🎉
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 100,  // Cantidad de papelitos
+                        spread: 70,          // Qué tan amplio se abre el estallido
+                        origin: { y: 0.6 },  // Altura desde donde sale (0.6 es ideal para móviles)
+                        colors: ['#10b981', '#34d399', '#6ee7b7', '#ffffff'] // Colores verdes de tu app
+                    });
+                }
+
+                // 2. Control del sonido 🔊
+                if (victorySound.paused) {
+                    victorySound.currentTime = 0;
+                    victorySound.play().catch(error => {
+                        console.log("El navegador bloqueó el audio temporalmente:", error);
+                    });
+                }
+            }
+            
             actualizarUI();
         }
         
